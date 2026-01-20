@@ -1,10 +1,7 @@
 package com.example.mockAuth.controller;
 
-import com.example.mockAuth.dto.ErrorResponse;
-import com.example.mockAuth.dto.LoginRequest;
-import com.example.mockAuth.dto.LoginResponse;
+import com.example.mockAuth.dto.*;
 import com.example.mockAuth.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,22 +10,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/apg/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-
         Object response = authService.login(request);
 
-        // ❌ Error case
         if (response instanceof ErrorResponse) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-
-        // ✅ Success case
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/sendotp")
+    public ResponseEntity<?> sendOtp(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody SendOtpRequest request) {
+
+        Object response = authService.sendOtp(authorization, request);
+
+        if (response instanceof ErrorResponse) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
+
 }

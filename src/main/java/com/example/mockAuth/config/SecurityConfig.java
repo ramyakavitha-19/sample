@@ -2,8 +2,10 @@ package com.example.mockAuth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+
 
 @Configuration
 public class SecurityConfig {
@@ -13,9 +15,15 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/apg/auth/login").permitAll() // ✅ allow login
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/apg/auth/login",
+                                "/apg/auth/sendotp"
+                        ).permitAll()
+                        .anyRequest().permitAll()
                 );
 
         return http.build();
